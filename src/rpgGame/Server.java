@@ -56,7 +56,7 @@ public class Server extends Thread {
         BufferedWriter bwStream;
 
         for(BufferedWriter bw: clients){
-            System.out.println(bw);
+            //System.out.println(bw);
             bwStream = (BufferedWriter)bw;
             if(bwExit != bwStream){
                 bw.write(name + ": " + msg+"\r\n");

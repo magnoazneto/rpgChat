@@ -30,30 +30,31 @@ public Server(Socket connection){
 ```
 
 O número da porta é captado na própria função Main, bem
-como a definição da janela de interface gráfica:
+como a definição da janela de interface gráfica, e a espera pela conexão
+de um novo Client:
 
 ```java
 public static void main(String[] args) {
-        try{
-            JLabel labelMessage = new JLabel("Porta do servidor: ");
-            JTextField textPort = new JTextField("5000");
-            Object[] texts = {labelMessage, textPort};
-            JOptionPane.showMessageDialog(null, texts);
-            server = new ServerSocket(Integer.parseInt(textPort.getText()));
-            clients = new ArrayList<BufferedWriter>();
-            JOptionPane.showMessageDialog(null, "Servidor ativo na porta: "+ textPort.getText());
+    try{
+        JLabel labelMessage = new JLabel("Porta do servidor: ");
+        JTextField textPort = new JTextField("5000");
+        Object[] texts = {labelMessage, textPort};
+        JOptionPane.showMessageDialog(null, texts);
+        server = new ServerSocket(Integer.parseInt(textPort.getText()));
+        clients = new ArrayList<BufferedWriter>();
+        JOptionPane.showMessageDialog(null, "Servidor ativo na porta: "+ textPort.getText());
 
-            while (true){
-                System.out.println("Aguardando conexão...");
-                Socket con = server.accept();
-                System.out.println("Cliente conectado...");
-                Thread t = new Server(con);
-                t.start();
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+        while (true){
+            System.out.println("Aguardando conexão...");
+            Socket con = server.accept();
+            System.out.println("Cliente conectado...");
+            Thread t = new Server(con);
+            t.start();
         }
+    } catch (Exception e){
+        e.printStackTrace();
     }
+}
 ```
 
 Após isso, o server estará iniciado e pronto para 
@@ -72,10 +73,10 @@ public void run() {
         while(!"Sair".equalsIgnoreCase(msg) && msg != null){
             msg = buffReader.readLine();
             sendToAll(buffWriter, msg);
-            System.out.println(msg);
         }
     } catch (Exception e){
         System.out.println(e.getMessage());
+        System.out.println("Player desconectado");
     }
 }
 ```
@@ -85,16 +86,17 @@ de enviar esta mensagem para todos os clients:
 
 ```java
 public void sendToAll(BufferedWriter bwExit, String msg) throws IOException{
-        BufferedWriter bwStream;
+    BufferedWriter bwStream;
 
-        for(BufferedWriter bw: clients){
-            bwStream = (BufferedWriter)bw;
-            if(!(bwExit == bwStream)){
-                bw.write(name + ": " + msg+"\r\n");
-                bw.flush();
-            }
+    for(BufferedWriter bw: clients){
+        //System.out.println(bw);
+        bwStream = (BufferedWriter)bw;
+        if(bwExit != bwStream){
+            bw.write(name + ": " + msg+"\r\n");
+            bw.flush();
         }
     }
+}
 ```
 
 
@@ -222,12 +224,11 @@ Enquanto "ouvinte", o client também pode performar suas ações
 como enviar mensagens, sair da conexão, ou rolar algum dado:
 ```java
 public void exit() throws IOException{
-
-    sendMessage("Sair");
     bfw.close();
     ouw.close();
     ou.close();
     socket.close();
+    setVisible(false);
 }
 
 @Override
@@ -273,24 +274,24 @@ Essa é a função responsável por enviar as mensagens para o
 server:
 ```java
  public void sendMessage(String msg) throws IOException{
-
-    if(msg.equals("Sair")){
-        bfw.write("Desconectado \r\n");
-        text.append("Desconectado \r\n");
-    }else{
-        if(isCommand(msg)){
-            String roll = getRoll(msg);
-            bfw.write(roll + "\r\n");
-            text.append("Sua rolagem: "+ roll + "\r\n");
-        }
-        else {
-            bfw.write(msg + "\r\n");
-            text.append(txtName.getText() + ": " + txtMsg.getText() + "\r\n");
-        }
-    }
-    bfw.flush();
-    txtMsg.setText("");
-}
+     //System.out.println(bfw);
+     if(msg.equals("Sair")){
+         bfw.write("Desconectado \r\n");
+         text.append("Player desconectado \r\n");
+     }else{
+         if(isCommand(msg)){
+             String roll = getRoll(msg);
+             bfw.write(roll + "\r\n");
+             text.append("Sua rolagem: "+ roll + "\r\n");
+         }
+         else {
+             bfw.write(msg + "\r\n");
+             text.append(txtName.getText() + ": " + txtMsg.getText() + "\r\n");
+         }
+     }
+     bfw.flush();
+     txtMsg.setText("");
+ }
 ```
 
 Note que ela checa se a mensagem digitada pelo usuário não é 
