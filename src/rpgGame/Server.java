@@ -45,10 +45,10 @@ public class Server extends Thread {
             while(!"Sair".equalsIgnoreCase(msg) && msg != null){
                 msg = buffReader.readLine();
                 sendToAll(buffWriter, msg);
-                System.out.println(msg);
             }
         } catch (Exception e){
             System.out.println(e.getMessage());
+            System.out.println("Player desconectado");
         }
     }
 
@@ -56,8 +56,9 @@ public class Server extends Thread {
         BufferedWriter bwStream;
 
         for(BufferedWriter bw: clients){
+            System.out.println(bw);
             bwStream = (BufferedWriter)bw;
-            if(!(bwExit == bwStream)){
+            if(bwExit != bwStream){
                 bw.write(name + ": " + msg+"\r\n");
                 bw.flush();
             }

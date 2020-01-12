@@ -188,10 +188,10 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public void sendMessage(String msg) throws IOException{
-
+        //System.out.println(bfw);
         if(msg.equals("Sair")){
             bfw.write("Desconectado \r\n");
-            text.append("Desconectado \r\n");
+            text.append("Player desconectado \r\n");
         }else{
             if(isCommand(msg)){
                 String roll = getRoll(msg);
@@ -226,11 +226,11 @@ public class Client extends JFrame implements ActionListener, KeyListener {
 
     public void exit() throws IOException{
 
-        sendMessage("Sair");
         bfw.close();
         ouw.close();
         ou.close();
         socket.close();
+        setVisible(false);
     }
 
     @Override
